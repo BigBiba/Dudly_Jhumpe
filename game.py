@@ -2,9 +2,12 @@ import pygame
 import os
 import sys
 
+EXTREME_HEIGHT = 382
+
 
 class Player(pygame.sprite.Sprite):
     image = pygame.image.load('data/mario.png')
+    flag = True
 
     def __init__(self, pos):
         super().__init__(all_sprites, all_players)
@@ -25,9 +28,12 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         if pygame.sprite.spritecollideany(self, all_platforms) and player.speed <= 0:
             player.speed = 30
-        player.rect = player.rect.move(0, -player.speed)
+        if player.flag:
+            player.rect = player.rect.move(0, -player.speed)
         if player.speed != -6:
             player.speed -= 2
+        if player.speed == 0:
+            player.flag = True
 
 
 class Platform(pygame.sprite.Sprite):
@@ -40,6 +46,11 @@ class Platform(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
         self.rect.y = pos[1]
+
+    def update(self):
+        if (player.rect.y - player.speed) < EXTREME_HEIGHT:
+            player.flag = False
+            self.rect = self.rect.move(0, player.speed) 
 
 
 pygame.init()
@@ -67,6 +78,7 @@ while running:
     screen.fill(pygame.Color('white'))
     all_sprites.draw(screen)
     all_sprites.update()
+    print(player.rect.y)
     clock.tick(30)
     pygame.draw.line(screen, pygame.Color('red'), (0, 382), (500, 382))  # потом удалить
     pygame.display.flip()
